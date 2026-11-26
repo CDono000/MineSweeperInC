@@ -8,6 +8,14 @@ void increment(int sq, int* board){
     }
 }
 
+int in(int item, int* array, int arrayLength){
+    int i;
+    for (i=0;i<arrayLength;++i){
+        if (*(array+i) == item){return 1;}
+    }
+    return 0;
+}
+
 int uncover(int sq, int* board, int* found){
     if (sq >= 0 && sq < 480){
         if (*(board+sq) == -1){return 0;}
@@ -45,7 +53,7 @@ int uncover(int sq, int* board, int* found){
     return 0;
 }
 
-void printboard(int* board, int* found){
+void printboard(int* board, int* found, int* flags, int flagCount){
     printf("\n");
     int i;
     int rows[16] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p'};
@@ -54,10 +62,20 @@ void printboard(int* board, int* found){
     for (i = 0; i < 30; i++){printf("%*d", 3, (i+1));}
     for (i = 0; i < 480; ++i){
         if (i%30 == 0){printf("\n%*c", 3, rows[row]); row++;}
-        if (*(found+i)){printf("%*d", 3, *(board+i));}
+        if (in(i, flags, flagCount)){printf("%*c", 3, 'F');}
+        else if (*(found+i)){printf("%*d", 3, *(board+i));}
         else {printf("%*c", 3, '?');}
     }
     printf("\n");
+}
+
+int won(int flagCount, int* flags, int* board){
+    if (flagCount < 99){return 0;}
+    int i;
+    for (i=0;i<99;++i){
+        if (*(board + *(flags+i)) != -1){return 0;}
+    }
+    return 1;
 }
 
 int main(){
@@ -65,11 +83,13 @@ int main(){
     // 30 x 16 board
     int board[480];
     int found[480];
-    int flags[99];
     int mineCount = 99;
+    int flags[99];
+    int flagCount = 0;
     int i;
     for (i=0;i<480;i++){board[i]=0;found[i]=0;}
     for (i=0;i<mineCount;++i){
+        flags[i]=0;
         int sq = rand()%480;
         while (board[sq] == -1){sq = rand()%480;}
         board[sq] = -1;
@@ -89,5 +109,8 @@ int main(){
             increment(sq-29, board);
         }
     }
-    printboard(board, found);
+    printboard(board, found, flags, flagCount);
+    // while (!won(flagCount, flags, board)){
+    //     continue;
+    // }
 }
