@@ -13,19 +13,31 @@ int uncover(int sq, int* board, int* found){
         if (*(board+sq) == -1){return 0;}
         *(found+sq) = 1;
         if (*(board + sq) == 0){
-            uncover(sq+30, board, found);
-            uncover(sq-30, board, found);
-            // Checks for left squares
-            if (sq > 0 && div(sq, 30).quot == div(sq-1, 30).quot){
-                uncover(sq-1, board, found);
-                uncover(sq-31, board, found);
-                uncover(sq+29, board, found);
-            }
-            // Checks for right squares
-            if (sq < 439 && div(sq, 30).quot == div(sq+1, 30).quot){
-                uncover(sq+1, board, found);
-                uncover(sq+31, board, found);
-                uncover(sq-29, board, found);
+            int toCheck[200];
+            int index = 0;
+            int max = 1;
+            toCheck[0] = sq;
+            while (index < max){
+                if (toCheck[index] >= 0 && toCheck[index] < 480){
+                    *(found + toCheck[index]) = 1;
+                    if (*(board + toCheck[index]) == 0){
+                        if (!(*(found + toCheck[index]-30))){toCheck[max++] = toCheck[index] - 30;}
+                        if (!(*(found + toCheck[index]+30))){toCheck[max++] = toCheck[index] + 30;}
+                        // Checks for left squares
+                        if (toCheck[index]%30 > 0){
+                            if (!(*(found + toCheck[index]-1))){toCheck[max++] = toCheck[index] - 1;}
+                            if (!(*(found + toCheck[index]-31))){toCheck[max++] = toCheck[index] - 31;}
+                            if (!(*(found + toCheck[index]+29))){toCheck[max++] = toCheck[index] + 29;}
+                        }
+                        // Checks for right squares
+                        if (toCheck[index] < 29){
+                            if (!(*(found + toCheck[index]+1))){toCheck[max++] = toCheck[index] + 1;}
+                            if (!(*(found + toCheck[index]+31))){toCheck[max++] = toCheck[index] + 31;}
+                            if (!(*(found + toCheck[index]-29))){toCheck[max++] = toCheck[index] - 29;}
+                        }
+                    }
+                }
+                index++;
             }
         }
         return 1;
@@ -34,6 +46,7 @@ int uncover(int sq, int* board, int* found){
 }
 
 void printboard(int* board, int* found){
+    printf("\n");
     int i;
     int rows[16] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p'};
     int row = 0;
@@ -52,6 +65,7 @@ int main(){
     // 30 x 16 board
     int board[480];
     int found[480];
+    int flags[99];
     int mineCount = 99;
     int i;
     for (i=0;i<480;i++){board[i]=0;found[i]=0;}
@@ -63,18 +77,17 @@ int main(){
         increment(sq+30, board);
         increment(sq-30, board);
         // Checks for left squares
-        if (sq > 0 && div(sq, 30).quot == div(sq-1, 30).quot){
+        if (sq % 30 > 0){
             increment(sq-1, board);
             increment(sq-31, board);
             increment(sq+29, board);
         }
         // Checks for right squares
-        if (sq < 439 && div(sq, 30).quot == div(sq+1, 30).quot){
+        if (sq % 30 < 29){
             increment(sq+1, board);
             increment(sq+31, board);
             increment(sq-29, board);
         }
     }
-    uncover(240, board, found);
     printboard(board, found);
 }
